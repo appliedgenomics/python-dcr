@@ -1,0 +1,35 @@
+syntax: regexp
+
+# OSX
+.DS_Store
+
+# Python compiled
+\.pyc$
+
+# Mercurial
+\.orig$
+\.rej$
+~$
+\.swp$
+
+# Emacs
+\.\#
+\#
+
+# Pip
+pip-log.txt
+
+# SQLite
+\.db$
+
+# Sphinx documentation builds
+^doc/sphinx-doc/build/
+
+syntax: glob
+
+*.pydevproject # APTANA Studio files
+*.project # APTANA Studio files
+*.settings # APTANA Studio files
+
+*.pyc
+*tests*
