@@ -9,6 +9,6 @@ setup(
     license='MIT',
     url='http://bitbucket.org/iga/python-dcr',
     packages=[
-        'python-dcr',
+        'python_dcr',
     ],
 )
