@@ -184,7 +184,7 @@ class DCRFile():
             return True
         except:
             sys.stderr.write(
-                    'Unexpected error during indexing (tabix): %s\n' %
+                    'Unexpected error during indexing (DCR): %s\n' %
                     sys.exc_info()[1])
             return False
 

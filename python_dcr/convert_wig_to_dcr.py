@@ -2,7 +2,7 @@
 Ver B
 produces:
 data.dcr
-1. __header    1    2    chunk=1000 split=space values=int
+1. __header    1    2    chunk=1000 separator=space values=int
 2. chr1    1    1000    1 2 3 4 ...
 3. chr1    1001 2000    1001 1002 1003 ...
 4. chr1    2001 3000    2001 2002 2003 ...
@@ -26,7 +26,7 @@ def convert_wig_to_dcr(wig, dcr, chunk_size, **kwargs):
 
     ih = open(wig)
     oh = open(dcr, 'w')
-    ohi = open(dcr + 'i', 'w')
+    ohi = open(dcr + '.dcri', 'w')
 
     # Current line plus 1: skip the header
     lines = 2
@@ -35,9 +35,9 @@ def convert_wig_to_dcr(wig, dcr, chunk_size, **kwargs):
     if separator == ' ':
         split_text = 'space'
 
-    oh.write('#chunk=%s split=%s values=%s' %
+    oh.write('#chunk=%s separator=%s values=%s' %
              (chunk_size, split_text, types))
-    ohi.write('#chunk=%s split=%s values=%s\n' %
+    ohi.write('#chunk=%s separator=%s values=%s\n' %
               (chunk_size, split_text, types))
 
     chrom = ''
