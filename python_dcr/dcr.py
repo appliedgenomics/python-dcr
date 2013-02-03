@@ -42,6 +42,7 @@ class DCRFile():
     header = {}
     index = {}
     __keep_index = True
+    favourite_method = 'compressed'
     # file extensions
     extension_compressed = '.gz'
     extension_index = '.dcri'
@@ -70,6 +71,7 @@ class DCRFile():
         self.__keep_index = kwargs.get('keep_index', False)
         if self.__filename_index_exists:
             self.read_index()
+        self.favourite_method = kwargs.get('favourite_method', 'compressed')
 
     def check_related_files(self):
         self.__filename_exists = os.path.exists(self.filename)
@@ -78,6 +80,8 @@ class DCRFile():
         self.__filename_index_exists = os.path.exists(self.filename_index)
         self.__filename_index_tabix_exists = os.path.exists(
                 self.filename_index_tabix)
+        if not self.__filename_compressed_exists:
+            self.favourite_method = 'text'
 
     def trust(self):
         self.__filename_exists = True
@@ -236,6 +240,12 @@ class DCRFile():
                    lines_values=[], fetch_start_line=True):
         chunk_size = self.header['chunk']
 
+        if not self.__filename_exists or \
+                not self.__filename_index_exists:
+            sys.stderr.write(
+                    "Check the existence of text file and index files.\n")
+            return False
+
         ret_values = []
         if not lines_values:
             # Avoid referencing
@@ -289,9 +299,10 @@ class DCRFile():
             return []
 
     def fetch(self, reference=None, start=None, end=None):
-        if self.__filename_index_exists:
+        if self.__filename_exists and self.favourite_method == 'text':
             return self.fetch_text(reference, start, end)
-        elif self.__filename_index_tabix_exists:
+        elif self.__filename_index_tabix_exists and \
+                self.favourite_method == 'compressed':
             return self.fetch_tabix(reference, start, end)
         else:
             sys.stderr.write("There is no index.\n")
