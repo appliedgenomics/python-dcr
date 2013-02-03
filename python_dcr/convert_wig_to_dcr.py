@@ -19,7 +19,7 @@ import sys
 import time
 
 
-def convert_wig_to_dcr(wig, dcr, chunk_size, **kwargs):
+def convert_wig_to_dcr(wig, dcr, chunk_size=1000, **kwargs):
     separator = kwargs.get('separator', ' ')
     types = kwargs.get('types', 'int')
     null_value = kwargs.get('null_value', 0)
