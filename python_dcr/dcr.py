@@ -219,7 +219,6 @@ class DCRFile():
                     line = line.strip()
                     if line != '':
                         line = line.split(':')
-                        print line
                         self.index[line[0]] = int(line[1])
                 if not ih_open:
                     ih.close()
@@ -244,7 +243,6 @@ class DCRFile():
             start_line = self.index[reference]
             line_start = start_line + ((start - 1) // chunk_size)
             line_end = start_line + (end // chunk_size)
-            print line_start, line_end
             for l in range(line_start, line_end + 1):
                 lines_values.append(
                         linecache.getline(self.filename, l).strip())
