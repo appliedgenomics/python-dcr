@@ -53,7 +53,7 @@ class DCRFile():
         self.filename = filename
         filename_compressed = filename
         if not filename.endswith(self.extension_compressed):
-            filename_compressed += '.gz'
+            filename_compressed += self.extension_compressed
         self.filename_compressed = kwargs.get('filename_compressed',
                                               filename_compressed)
         filename_index = filename + self.extension_index
@@ -97,6 +97,15 @@ class DCRFile():
         print "filename_index_exists: %s" % self.__filename_index_exists
         print "filename_index_tabix_exists: %s" % \
                 self.__filename_index_tabix_exists
+    
+    def get_status(self):
+        status = {
+              'filename_exists': self.__filename_exists,
+              'filename_compressed_exists': self.__filename_compressed_exists,
+              'filename_index_exists': self.__filename_index_exists,
+              'filename_index_tabix_exists': self.__filename_index_tabix_exists
+        }
+        return status
 
     def validate_header(self):
         self.header.setdefault('chunk', 1000)
@@ -189,6 +198,7 @@ class DCRFile():
         t2 = time.time()
         if timing:
             sys.stderr.write('Total time: %s' % (t2 - t1))
+        return True
 
     def write_index(self, **kwargs):
         force = kwargs.get('force', False)

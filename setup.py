@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='iga-python-dcr',
-    version='0.0.1',
+    version='0.5.0',
     description="Python access to DCR files",
     author='Vittorio Zamboni',
     author_email='zamboni@appliedgenomics.org',
@@ -13,6 +13,7 @@ setup(
     ],
     install_requires=[
         'Cython==0.18',
+        'python-magic==0.4.3',
         'pysam==0.7.4',
     ]
 )
