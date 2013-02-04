@@ -46,7 +46,7 @@ def convert_wig_to_dcr(wig, dcr, chunk_size=1000, **kwargs):
 
     for line in ih:
         line = line.strip()
-        if line != '':
+        if line != '' and not line.startswith('track'):
             if 'chrom' in line:
                 if chunk_values:
                     first_num = (chrom_lines - 1) * chunk_size + 1
