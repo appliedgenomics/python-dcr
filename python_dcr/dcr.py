@@ -310,6 +310,8 @@ class DCRFile():
                 a = start % chunk_size - 1
             if l == line_end - 1:
                 b = end % chunk_size
+                if b == 0:
+                    b = chunk_size
             values_range = values[a:b]
             if self.header['conv']:
                 ret_values += map(self.header['conv'], values_range)
@@ -333,16 +335,20 @@ class DCRFile():
             return False
         f = pysam.Tabixfile(self.filename_compressed)
         try:
-            values = [r for r in f.fetch(reference=reference,
+            values = [r for r in f.fetch(reference=bytes(reference),
                                          start=start, end=end)]
             f.close()
-            ret_values = self.fetch_text(reference, start, end,
-                                        lines_values=values,
-                                        fetch_start_line=False)
-            t2 = time.time()
-            if timing:
-                sys.stderr.write('Total time: %s' % (t2 - t1))
-            return ret_values
+            if values:
+                ret_values = self.fetch_text(reference, start, end,
+                                            lines_values=values,
+                                            fetch_start_line=False)
+                t2 = time.time()
+                if timing:
+                    sys.stderr.write('Total time: %s' % (t2 - t1))
+                return ret_values
+            else:
+                sys.stderr.write('Empty values\n')
+                return False
         except:
             f.close()
             sys.stderr.write(

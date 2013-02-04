@@ -35,7 +35,7 @@ def convert_wig_to_dcr(wig, dcr, chunk_size=1000, **kwargs):
     if separator == ' ':
         split_text = 'space'
 
-    oh.write('#chunk=%s separator=%s values=%s' %
+    oh.write('__header\t1\t2\tchunk=%s separator=%s values=%s' %
              (chunk_size, split_text, types))
     ohi.write('#chunk=%s separator=%s values=%s\n' %
               (chunk_size, split_text, types))
