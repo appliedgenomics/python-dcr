@@ -204,7 +204,7 @@ class DCRFile():
             # Write header
             header_values = fh.readline().split('\t')[3].strip()
             ih.write('#' + header_values)
-            self.set_hedaer_values(header_values)
+            self.set_header_values(header_values)
             # Write content
             chr_name = ''
             line = 1
@@ -213,7 +213,7 @@ class DCRFile():
                 dcr_data = dcr_line.split('\t')
                 if dcr_data[0] != chr_name:
                     chr_name = dcr_data[0]
-                    ih.write("%s:%s\n" % (chr_name, line))
+                    ih.write("\n%s:%s" % (chr_name, line))
                     if self.__keep_index:
                         self.index[chr_name] = line
             fh.close()
