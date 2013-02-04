@@ -11,4 +11,8 @@ setup(
     packages=[
         'python_dcr',
     ],
+    install_requires=[
+        'Cython==0.18',
+        'pysam==0.7.4',
+    ]
 )
