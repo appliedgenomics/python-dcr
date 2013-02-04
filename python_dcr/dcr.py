@@ -1,6 +1,7 @@
 import linecache
 import os
 import sys
+import time
 
 import pysam
 
@@ -130,29 +131,45 @@ class DCRFile():
                     type(header_values))
             return False
 
-    def compress(self, force=False):
+    def compress_tabix(self, **kwargs):
+        force = kwargs.get('force', False)
+        timing = kwargs.get('timing', False)
+        t1 = time.time()
         if self.__filename_compressed_exists and not force:
             sys.stderr.write("%s exists\n" % self.filename_compressed)
             return False
         else:
             try:
-                pysam.tabix_compress(self.filename, self.filename_compressed)
+                pysam.tabix_compress(self.filename, self.filename_compressed,
+                                     force=force)
                 self.__filename_compressed_exists = True
+                t2 = time.time()
+                if timing:
+                    sys.stderr.write('Total time: %s\n' % (t2 - t1))
                 return True
             except:
                 sys.stderr.write('Unexpected error during compression: %s\n' %
-                                 sys.exc_info()[0])
+                                 sys.exc_info()[1])
                 return False
 
-    def write_index_tabix(self, force=False):
+    def write_index_tabix(self, **kwargs):
+        force = kwargs.get('force', False)
+        timing = kwargs.get('timing', False)
+
+        t1 = time.time()
+
         if self.__filename_index_tabix_exists and not force:
-            sys.stderr.write("%s exists" % self.filename_index_tabix)
+            sys.stderr.write("%s exists\n" % self.filename_index_tabix)
             return False
         else:
             try:
                 pysam.tabix_index(self.filename_compressed,
-                                  seq_col=0, start_col=1, end_col=2)
+                                  seq_col=0, start_col=1, end_col=2,
+                                  force=force)
                 self.__filename_index_tabix_exists = True
+                t2 = time.time()
+                if timing:
+                    sys.stderr.write('Total time: %s\n' % (t2 - t1))
                 return True
             except:
                 sys.stderr.write(
@@ -160,7 +177,24 @@ class DCRFile():
                         sys.exc_info()[0])
                 return False
 
-    def write_index(self, force=False):
+    def compress(self, **kwargs):
+        timing = kwargs.get('timing', False)
+        force = kwargs.get('force', False)
+
+        t1 = time.time()
+
+        self.compress_tabix(force=force)
+        self.write_index_tabix(force=force)
+
+        t2 = time.time()
+        if timing:
+            sys.stderr.write('Total time: %s' % (t2 - t1))
+
+    def write_index(self, **kwargs):
+        force = kwargs.get('force', False)
+        timing = kwargs.get('timing', False)
+
+        t1 = time.time()
         if self.__filename_index_exists and not force:
             sys.stderr.write("%s exists\n" % self.filename_index)
             return False
@@ -185,6 +219,10 @@ class DCRFile():
             fh.close()
             ih.close()
             self.__filename_index_exists = True
+
+            t2 = time.time()
+            if timing:
+                sys.stderr.write('Total time: %s\n' % (t2 - t1))
             return True
         except:
             sys.stderr.write(
@@ -236,9 +274,13 @@ class DCRFile():
             sys.stderr.write('Index does not exists.\n')
             return False
 
-    def fetch_text(self, reference=None, start=None, end=None,
-                   lines_values=[], fetch_start_line=True):
+    def fetch_text(self, reference=None, start=None, end=None, **kwargs):
+        lines_values = kwargs.get('lines_values', [])
+        fetch_start_line = kwargs.get('fetch_start_line', True)
+        timing = kwargs.get('timing', False)
         chunk_size = self.header['chunk']
+
+        t1 = time.time()
 
         if not self.__filename_exists or \
                 not self.__filename_index_exists:
@@ -273,9 +315,16 @@ class DCRFile():
                 ret_values += map(self.header['conv'], values_range)
             else:
                 ret_values += values_range
+
+        t2 = time.time()
+        if timing:
+            sys.stderr.write('Total time: %s' % (t2 - t1))
         return ret_values
 
-    def fetch_tabix(self, reference, start, end):
+    def fetch_tabix(self, reference, start, end, **kwargs):
+        timing = kwargs.get('timing', False)
+
+        t1 = time.time()
         if not self.__filename_compressed_exists or \
                 not self.__filename_index_exists or \
                 not self.__filename_index_tabix_exists:
@@ -287,7 +336,13 @@ class DCRFile():
             values = [r for r in f.fetch(reference=reference,
                                          start=start, end=end)]
             f.close()
-            return self.fetch_text(reference, start, end, values, False)
+            ret_values = self.fetch_text(reference, start, end,
+                                        lines_values=values,
+                                        fetch_start_line=False)
+            t2 = time.time()
+            if timing:
+                sys.stderr.write('Total time: %s' % (t2 - t1))
+            return ret_values
         except:
             f.close()
             sys.stderr.write(
@@ -298,12 +353,12 @@ class DCRFile():
             print "Empty reference"
             return []
 
-    def fetch(self, reference=None, start=None, end=None):
+    def fetch(self, reference=None, start=None, end=None, **kwargs):
         if self.__filename_exists and self.favourite_method == 'text':
-            return self.fetch_text(reference, start, end)
+            return self.fetch_text(reference, start, end, **kwargs)
         elif self.__filename_index_tabix_exists and \
                 self.favourite_method == 'compressed':
-            return self.fetch_tabix(reference, start, end)
+            return self.fetch_tabix(reference, start, end, **kwargs)
         else:
             sys.stderr.write("There is no index.\n")
             return False
