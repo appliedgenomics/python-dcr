@@ -97,7 +97,7 @@ class DCRFile():
         print "filename_index_exists: %s" % self.__filename_index_exists
         print "filename_index_tabix_exists: %s" % \
                 self.__filename_index_tabix_exists
-    
+
     def get_status(self):
         status = {
               'filename_exists': self.__filename_exists,
@@ -120,6 +120,7 @@ class DCRFile():
         self.header.setdefault('separator', ' ')
         if self.header['separator'] == 'space':
             self.header['separator'] = ' '
+        self.header.setdefault('null_value', 0)
         return True
 
     def set_header_values(self, header_values):
