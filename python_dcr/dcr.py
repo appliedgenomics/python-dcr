@@ -28,6 +28,11 @@ f.write_index_tabix()
 f.read_index()
 '''
 
+'''
+RESERVED VALUES
+'''
+INFO_TYPE = {'tot': int, 'min': int, 'max': int}
+
 
 class DCRFile():
     # Paths and checks
@@ -218,15 +223,20 @@ class DCRFile():
             self.set_header_values(header_values)
             # Write content
             chr_name = ''
+            last_max = ''
             line = 1
             for dcr_line in fh:
                 line += 1
                 dcr_data = dcr_line.split('\t')
                 if dcr_data[0] != chr_name:
+                    if chr_name:
+                        ih.write(":tot=%s" % last_max)
                     chr_name = dcr_data[0]
                     ih.write("\n%s:%s" % (chr_name, line))
                     if self.__keep_index:
                         self.index[chr_name] = line
+                last_max = dcr_data[2]
+            ih.write(":tot=%s" % last_max)
             fh.close()
             ih.close()
             self.__filename_index_exists = True
@@ -272,7 +282,14 @@ class DCRFile():
                     line = line.strip()
                     if line != '':
                         line = line.split(':')
-                        self.index[line[0]] = int(line[1])
+                        self.index[line[0]] = {'line': int(line[1])}
+                        if line[2]:
+                            values = line[2].split(';')
+                            for couple in values:
+                                k, v = couple.split('=')
+                                if k in INFO_TYPE:
+                                    v = INFO_TYPE[k](v)
+                                self.index[line[0]][k] = v
                 if not ih_open:
                     ih.close()
                 return True
@@ -303,7 +320,7 @@ class DCRFile():
         if not lines_values:
             # Avoid referencing
             lines_values = []
-            start_line = self.index[reference]
+            start_line = self.index[reference]['line']
             line_start = start_line + ((start - 1) // chunk_size)
             line_end = start_line + (end // chunk_size)
             for l in range(line_start, line_end + 1):
@@ -379,3 +396,9 @@ class DCRFile():
         else:
             sys.stderr.write("There is no index.\n")
             return False
+
+    def get_reference_info(self, reference, info):
+        if reference in self.index:
+            if info in self.index[reference]:
+                return self.index[reference][info]
+        return None

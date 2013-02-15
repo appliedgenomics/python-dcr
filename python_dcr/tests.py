@@ -58,7 +58,8 @@ class TestDCR(unittest.TestCase):
     def test_read_index(self):
         self.f.write_index()
         self.assertTrue(self.f.read_index())
-        self.assertEquals(self.f.index, {'chr1': 2, 'chr2': 13})
+        self.assertEquals(self.f.index, {'chr1': {'line': 2, 'tot': 10045},
+                                         'chr2': {'line': 13, 'tot': 10}})
 
     def test_compress(self):
         self.f.write_index()
