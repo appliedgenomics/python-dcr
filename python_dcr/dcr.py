@@ -283,7 +283,7 @@ class DCRFile():
                     if line != '':
                         line = line.split(':')
                         self.index[line[0]] = {'line': int(line[1])}
-                        if line[2]:
+                        if len(line) > 2:
                             values = line[2].split(';')
                             for couple in values:
                                 k, v = couple.split('=')
