@@ -13,6 +13,7 @@ setup(
     ],
     install_requires=[
         'Cython==0.18',
+        'nose==1.2.1,
         'python-magic==0.4.3',
         'pysam==0.7.4',
     ]
